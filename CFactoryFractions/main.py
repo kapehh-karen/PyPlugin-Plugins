@@ -84,10 +84,16 @@ class TownyListeners(PyListener):
         if (player is None) or (not player.isOnline()):
             return
 
+        hasResidentsInTown = False
         findedResident = False
         playerInTown = None
         for resTown in town.getResidents():
-            if resTown.isNPC() or (resTown == residentJoined):
+            if (resTown == residentJoined):
+                continue
+
+            hasResidentsInTown = True
+
+            if resTown.isNPC():
                 continue
 
             playerInTown = Bukkit.getPlayer(resTown.getName())
@@ -98,6 +104,11 @@ class TownyListeners(PyListener):
 
             findedResident = True
             break
+
+        # Если событие вызывается когда игрок создает город,
+        # то надо игнорировать все проверки и просто ничего не делать
+        if not hasResidentsInTown:
+            return
 
         needRemove = False
         if findedResident:
