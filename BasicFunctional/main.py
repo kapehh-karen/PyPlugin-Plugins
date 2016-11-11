@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import re
+
 from org.bukkit.entity import Player
 from org.bukkit.event.player import PlayerJoinEvent
 from org.bukkit.event.player import PlayerQuitEvent
@@ -7,6 +9,17 @@ from org.bukkit.event.entity import PlayerDeathEvent
 from org.bukkit import ChatColor
 from org.bukkit import Bukkit
 from me.kapehh.main.pluginmanager.vault import PluginVault
+
+
+LINKS_TEXT = u"""{2}{3}========== [ Ц-Фактори 2 (Ссылки) ] =========={1}
+Официальный сайт: {0}http://c-factory2.pw{1}
+Правила сервера: {0}http://c-factory2.pw/rules{1}
+Гайд для начинающих: {0}https://vk.com/topic-29987531_34308374{1}
+Классы Героев: {0}https://vk.com/topic-29987531_34131838{1}
+Классы Изгоев: {0}https://vk.com/topic-29987531_34131951{1}
+Основные команды сервера: {0}https://vk.com/topic-29987531_34245639{1}
+{2}{3}=============================================={1}""".format(ChatColor.AQUA, ChatColor.RESET, ChatColor.GOLD, ChatColor.BOLD)
+
 
 @BukkitListener
 class Listnr(PyListener):
@@ -26,24 +39,19 @@ class Listnr(PyListener):
     def cmd(self, event):
         if event.isCancelled():
             return
+
         cmdName = event.getMessage()
+        player = event.getPlayer()
+
         if cmdName == "/kill":
-            player = event.getPlayer()
             player.setHealth(0)
             event.setCancelled(True)
+
         elif cmdName == "/links":
-            player = event.getPlayer()
-            player.sendMessage(u"""{2}{3}========== [ Ц-Фактори 2 (Ссылки) ] =========={1}
-Официальный сайт: {0}http://c-factory2.pw{1}
-Правила сервера: {0}http://c-factory2.pw/rules{1}
-Гайд для начинающих: {0}https://vk.com/topic-29987531_34308374{1}
-Классы Героев: {0}https://vk.com/topic-29987531_34131838{1}
-Классы Изгоев: {0}https://vk.com/topic-29987531_34131951{1}
-Основные команды сервера: {0}https://vk.com/topic-29987531_34245639{1}
-{2}{3}=============================================={1}""".format(ChatColor.AQUA, ChatColor.RESET, ChatColor.GOLD, ChatColor.BOLD))
+            player.sendMessage(LINKS_TEXT)
             event.setCancelled(True)
+
         elif cmdName == "/spawn":
-            player = event.getPlayer()
             isHero = player.hasPermission("cfactoryfractions.fraction.heroes")
             isOutcast = player.hasPermission("cfactoryfractions.fraction.outcast")
             if not (isHero == isOutcast):
@@ -54,6 +62,12 @@ class Listnr(PyListener):
                 elif isOutcast:
                     player.sendMessage(u"Ожидайте телепорт на спаун фракции %sИзгоев%s!" % (ChatColor.RED, ChatColor.RESET))
                     player.chat("/t spawn Ark") # Выполняем команду
+
+        elif cmdName.startswith("/t new ") or cmdName.startswith("/town new "):
+            if not re.match(r'^/(t|town) new [A-Za-z0-9_]+$', unicode(cmdName)):
+                player.sendMessage(u"%sВ имени города можно использовать только буквы латинского алфавита, цифры или знак подчеркивания!" % ChatColor.RED)
+                event.setCancelled(True)
+
 
 @BukkitPlugin
 class Plug(PyPlugin):
@@ -77,6 +91,7 @@ class Plug(PyPlugin):
         if not isinstance(sender, Player):
             sender.sendMessage("You not player!")
             return
+            
         item = sender.getItemInHand()
         sender.sendMessage("Item: %s" % item)
 
@@ -108,7 +123,8 @@ class Plug(PyPlugin):
         self.iconomy.withdrawPlayer(namePlayer, cost)
         server = Bukkit.getServer()
         server.dispatchCommand(server.getConsoleSender(), "md gem %s -a 1 -g %s" % (namePlayer, nameGem))
-        
+
+
     @PyCommandHandler("getexp")
     def onGetExp(self, sender, args):
         if self.pheroes is None:
