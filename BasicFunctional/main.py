@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import re
 
 from org.bukkit.entity import Player
 from org.bukkit.event.player import PlayerJoinEvent
@@ -9,6 +8,8 @@ from org.bukkit.event.entity import PlayerDeathEvent
 from org.bukkit import ChatColor
 from org.bukkit import Bukkit
 from me.kapehh.main.pluginmanager.vault import PluginVault
+
+import re
 
 
 LINKS_TEXT = u"""{2}{3}========== [ Ц-Фактори 2 (Ссылки) ] =========={1}
@@ -65,8 +66,8 @@ class Listnr(PyListener):
 
         elif cmdName.startswith("/t new ") or cmdName.startswith("/town new "):
             if not re.match(r'^/(t|town) new [A-Za-z0-9_]+$', unicode(cmdName)):
-                player.sendMessage(u"%sВ имени города можно использовать только буквы латинского алфавита, цифры или знак подчеркивания!" % ChatColor.RED)
                 event.setCancelled(True)
+                player.sendMessage(u"%sВ имени города можно использовать только буквы латинского алфавита, цифры или знак подчеркивания!" % ChatColor.RED)
 
 
 @BukkitPlugin

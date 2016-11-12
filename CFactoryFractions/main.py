@@ -81,7 +81,7 @@ class TownyListeners(PyListener):
             return
 
         player = Bukkit.getPlayer(residentJoined.getName())
-        if (player is None) or (not player.isOnline()):
+        if (player is None) or (not player.isOnline()) or player.hasPermission(PERM_ADMIN):
             return
 
         hasResidentsInTown = False
