@@ -1,3 +1,6 @@
+# PyPlugin Sessions
+
+
 class PlayerSession:
     sessions = {}
 
