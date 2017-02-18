@@ -18,7 +18,10 @@ ITEMSTACK_JSON_NAME = "bukkit::itemstack"
 class BukkitJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if not isinstance(obj, ItemStack):
+            if hasattr(obj, '__dict__'):
+                return obj.__dict__
             return None
+
         byte_array_out = ByteArrayOutputStream()
         bukkit_out = BukkitObjectOutputStream(byte_array_out)
         bukkit_out.writeObject(obj)
@@ -29,9 +32,11 @@ class BukkitJSONEncoder(json.JSONEncoder):
 
 
 class BukkitJSONDecoder:
-    def from_json(self, json_object):
+    @staticmethod
+    def from_json(json_object):
         if not ITEMSTACK_JSON_NAME in json_object:
             return json_object
+
         raw_bytes = binascii.unhexlify(json_object[ITEMSTACK_JSON_NAME])
         byte_array_in = ByteArrayInputStream(raw_bytes)
         bukkit_in = BukkitObjectInputStream(byte_array_in)
@@ -39,10 +44,12 @@ class BukkitJSONDecoder:
         bukkit_in.close()
         return bukkit_item
 
-    def decode(self, json_string):
-        return json.JSONDecoder(object_hook=self.from_json).decode(json_string)
-
 
 class BukkitJSON:
-    encoder = BukkitJSONEncoder()
-    decoder = BukkitJSONDecoder()
+    @staticmethod
+    def encode(obj):
+        return json.dumps(obj, cls=BukkitJSONEncoder, indent=2)
+
+    @staticmethod
+    def decode(json_string):
+        return json.JSONDecoder(object_hook=BukkitJSONDecoder.from_json).decode(json_string)
