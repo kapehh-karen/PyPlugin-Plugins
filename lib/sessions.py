@@ -1,4 +1,5 @@
 from org.bukkit.entity import Player
+from org.bukkit import Bukkit
 
 import os
 
@@ -8,12 +9,20 @@ from .bukkitjson import BukkitJSON
 
 
 class PlayerSession:
+    MAX_CACHE_THRESHOLD = 150
     session_dir = "sessions"
     sessions = {}
 
     @staticmethod
     def set_path(*args):
         PlayerSession.session_dir = os.path.join(*args)
+
+    @staticmethod
+    def clean_sessions():
+        players = [str(x.getUniqueId().toString()) for x in Bukkit.getOnlinePlayers()]
+        for k, v in PlayerSession.sessions.iteritems():
+            if k not in players:
+                del PlayerSession.sessions[k]
 
     @staticmethod
     def get(player, force_read=False):
@@ -23,6 +32,9 @@ class PlayerSession:
         filename = str(player.getUniqueId().toString())
         if (not force_read) and (filename in PlayerSession.sessions):
             return PlayerSession.sessions[filename]
+
+        if len(PlayerSession.sessions) > PlayerSession.MAX_CACHE_THRESHOLD:
+            PlayerSession.clean_sessions()
 
         full_name = os.path.join(PlayerSession.session_dir, filename + ".json")
         if not os.path.isfile(full_name):
