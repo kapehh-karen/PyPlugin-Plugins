@@ -1,8 +1,19 @@
+from org.bukkit.entity import Player
+
+import os
+
+from .bukkitjson import BukkitJSON
+
 # PyPlugin Sessions
 
 
 class PlayerSession:
+    session_dir = "sessions"
     sessions = {}
+
+    @staticmethod
+    def set_path(*args):
+        PlayerSession.session_dir = os.path.join(*args)
 
     @staticmethod
     def get(player, force_read=False):
@@ -13,7 +24,7 @@ class PlayerSession:
         if (not force_read) and (filename in PlayerSession.sessions):
             return PlayerSession.sessions[filename]
 
-        full_name = os.path.join(__internal_data__["sessiondir"], filename + ".json")
+        full_name = os.path.join(PlayerSession.session_dir, filename + ".json")
         if not os.path.isfile(full_name):
             empty_obj = {
                 'name': player.getName()
@@ -23,7 +34,7 @@ class PlayerSession:
 
         with open(full_name, 'r') as content_file:
             content = content_file.read()
-            json_obj = BukkitJSON.decoder.decode(content)
+            json_obj = BukkitJSON.decode(content)
             PlayerSession.sessions[filename] = json_obj
             return json_obj
 
@@ -36,11 +47,11 @@ class PlayerSession:
         if filename not in PlayerSession.sessions:
             return None
 
-        if not os.path.exists(__internal_data__["sessiondir"]):
-            os.mkdir(__internal_data__["sessiondir"])
+        if not os.path.exists(PlayerSession.session_dir):
+            os.mkdir(PlayerSession.session_dir)
 
-        full_name = os.path.join(__internal_data__["sessiondir"], filename + ".json")
+        full_name = os.path.join(PlayerSession.session_dir, filename + ".json")
         with open(full_name, 'w') as content_file:
-            json_string = BukkitJSON.encoder.encode(PlayerSession.sessions[filename])
+            json_string = BukkitJSON.encode(PlayerSession.sessions[filename])
             content_file.write(json_string)
             return json_string
