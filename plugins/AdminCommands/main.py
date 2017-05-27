@@ -6,7 +6,7 @@ from org.bukkit.enchantments import Enchantment
 
 PERM_SET_CUSTOM_NAME = "cfactory.custom.item"
 
-@BukkitPlugin
+@pyp_plugin
 class Plug(PyPlugin):
 
     def check_setitem(self, sender, argv):
@@ -26,7 +26,7 @@ class Plug(PyPlugin):
 
         return True
 
-    @PyCommandHandler("setitemname")
+    @pyp_command_handler("setitemname")
     def cmdSetItemName(self, sender, argv):
         if not self.check_setitem(sender, argv):
             return
@@ -45,7 +45,7 @@ class Plug(PyPlugin):
         itemStack.setItemMeta(itemMeta);
         player.sendMessage("%sComplete!" % (ChatColor.GREEN))
 
-    @PyCommandHandler("setitemlore")
+    @pyp_command_handler("setitemlore")
     def cmdSetItemLore(self, sender, argv):
         if not self.check_setitem(sender, argv):
             return
@@ -65,7 +65,7 @@ class Plug(PyPlugin):
         itemStack.setItemMeta(itemMeta);
         player.sendMessage("%sComplete!" % (ChatColor.GREEN))
 
-    @PyCommandHandler("setitemench")
+    @pyp_command_handler("setitemench")
     def cmdSetItemEnch(self, sender, argv):
         if not self.check_setitem(sender, argv):
             return
